@@ -34,8 +34,9 @@ package() {
 }
 
 utils() {
+if [ "$CLIBC" != "glibc" ]; then
 	depends="$CLIBC-utils"
-
+fi
 	mkdir -p "$subpkgdir"
 }
 
