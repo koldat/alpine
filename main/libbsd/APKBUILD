@@ -7,7 +7,11 @@ pkgdesc="commonly-used BSD functions not implemented by all libcs"
 url="https://libbsd.freedesktop.org/"
 arch="all"
 license="BSD-3-Clause"
+if [ "$CLIBC" = "glibc" ]; then
+depends="glibc"
+else
 depends="musl"
+fi
 depends_dev="bsd-compat-headers linux-headers libmd-dev libbsd=$pkgver-r$pkgrel" # libbsd.so is a GNU ld script and not symlink
 makedepends_build="autoconf automake libtool"
 makedepends_host="$depends_dev"
