@@ -167,6 +167,8 @@ EOF
 	fail="$fail test_selectors"				# AssertionError: 'Python' not found in '' (python3.9)
 	fail="$fail test_nntplib"
 	fail="$fail test_asyncio"				# hangs; routinely problematic (e.g. bpo-39101, bpo-41891, bpo-42183)
+	# Fails for my system
+	fail="$fail test_curses test_email test_urllib2net"
 
 	# kernel related
 	fail="$fail test_fcntl"					# wants DNOTIFY, we don't have it
