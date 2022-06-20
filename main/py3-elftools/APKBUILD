@@ -25,7 +25,7 @@ check() {
 package() {
 	python3 setup.py install --prefix=/usr --root="$pkgdir"
 
-	mkdir -p "$pkgdir"/usr/share/doc/$pkgname
+	mkdir -p "$pkgdir"/usr/share/doc/$pkgname/doc
 	install -m644 README.rst CHANGES \
 		"$pkgdir"/usr/share/doc/$pkgname/doc
 }
