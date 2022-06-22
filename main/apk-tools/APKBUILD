@@ -9,7 +9,11 @@ license="GPL-2.0-only"
 subpackages="$pkgname-dbg $pkgname-dev $pkgname-static $pkgname-doc $pkgname-zsh-completion"
 # Musl 1.2 introduced new ABI for time64 => upgrading apk-tools
 # while staying on musl <1.2 causes missing symbols
+if [ "$CLIBC" != "glibc" ]; then
 depends="musl>=1.2"
+else
+depends="glibc"
+endif
 makedepends_build="openssl lua5.3 lua5.3-lzlib scdoc"
 makedepends_host="zlib-dev openssl1.1-compat-dev zlib-static openssl1.1-compat-libs-static linux-headers"
 makedepends="$makedepends_build $makedepends_host"
