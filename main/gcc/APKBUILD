@@ -201,7 +201,6 @@ source="https://dev.alpinelinux.org/~nenolod/gcc-${pkgver}.tar.xz
 	0019-ada-fix-shared-linking.patch
 	0020-build-fix-CXXFLAGS_FOR_BUILD-passing.patch
 	0021-add-fortify-headers-paths.patch
-	0022-Alpine-musl-package-provides-libssp_nonshared.a.-We-.patch
 	0023-DP-Use-push-state-pop-state-for-gold-as-well-when-li.patch
 	0024-mips64-disable-multilib-support.patch
 	0025-aarch64-disable-multilib-support.patch
@@ -210,20 +209,14 @@ source="https://dev.alpinelinux.org/~nenolod/gcc-${pkgver}.tar.xz
 	0028-x86_64-disable-multilib-support.patch
 	0029-riscv-disable-multilib-support.patch
 	0030-always-build-libgcc_eh.a.patch
-	0031-ada-libgnarl-compatibility-for-musl.patch
-	0032-ada-musl-support-fixes.patch
-	0033-gcc-go-Fix-handling-of-signal-34-on-musl.patch
 	0034-There-are-more-than-one-st_-a-m-c-tim-fields-in-stru.patch
-	0035-gcc-go-signal-34-is-special-on-musl-libc.patch
 	0036-gcc-go-undef-SETCONTEXT_CLOBBERS_TLS-in-proc.c.patch
 	0037-gcc-go-link-to-libucontext.patch
-	0038-Use-generic-errstr.go-implementation-on-musl.patch
 	0039-configure-Add-enable-autolink-libatomic-use-in-LINK_.patch
 	0040-configure-fix-detection-of-atomic-builtins-in-libato.patch
 	0041-libgo-Recognize-off64_t-and-loff_t-definitions-of-mu.patch
 	0042-Fix-attempt-to-use-poisoned-calloc-error-in-libgccji.patch
 	0043-stddef.h-add-support-for-musl-typedef-macro-guards.patch
-	0044-gcc-go-Use-int64-type-as-offset-argument-for-mmap.patch
 	0045-libgo-include-asm-ptrace.h-for-pt_regs-definition-on.patch
 	0046-Disable-fsplit-stack-support-on-non-glibc-targets.patch
 	0047-x86-Properly-disable-fsplit-stack-support-on-non-gli.patch
@@ -231,6 +224,15 @@ source="https://dev.alpinelinux.org/~nenolod/gcc-${pkgver}.tar.xz
 	0049-properly-disable-fsplit-stack-on-non-glibc-targets-P.patch
 	0050-x86-Fix-fsplit-stack-feature-detection-via-TARGET_CA.patch
 	0051-go-gospec-forcibly-disable-fsplit-stack-support.patch
+	"
+sourcemusl="
+	0022-Alpine-musl-package-provides-libssp_nonshared.a.-We-.patch
+	0031-ada-libgnarl-compatibility-for-musl.patch
+	0032-ada-musl-support-fixes.patch
+	0033-gcc-go-Fix-handling-of-signal-34-on-musl.patch
+	0035-gcc-go-signal-34-is-special-on-musl-libc.patch
+	0038-Use-generic-errstr.go-implementation-on-musl.patch
+	0044-gcc-go-Use-int64-type-as-offset-argument-for-mmap.patch
 	libgo-musl-1.2.3.patch
 	"
 
@@ -240,6 +242,7 @@ _gcclibdir="/usr/lib/gcc/$CTARGET/${_pkgbase:-$pkgver}"
 _gcclibexec="/usr/libexec/gcc/$CTARGET/${_pkgbase:-$pkgver}"
 
 prepare() {
+
 	cd "$_gccdir"
 
 	_err=
@@ -251,6 +254,17 @@ prepare() {
 			;;
 		esac
 	done
+
+if [ "$CLIBC" != "glibc" ]; then
+	for i in $sourcemusl; do
+		case "$i" in
+		*.patch)
+			msg "Applying $i"
+			patch -p1 -i "$startdir"/$i || _err="$_err $i"
+			;;
+		esac
+	done
+fi
 
 	if [ -n "$_err" ]; then
 		error "The following patches failed:"
@@ -720,7 +734,6 @@ f78fc1bc99669a90bd68051f9d17bfc25065e49c7d4e853cda293be3a9f17b08867de31e73b90a82
 463ce54bb32d9ba52ed7f0d7df99011f17543e80f6aca9a61b747e074662b283c563434b96a0bc8ae4636e154f1033c5720f3c8113bc6ad095592a1d5584981c  0019-ada-fix-shared-linking.patch
 194647e5a87fb7ebd7602eee9ffa5d3e713dc26baa5f8fa50ada513ca5d28898d1fcee5e9db0d3af6d5b774961426fc1e2f9b5155992ead9981412c627967219  0020-build-fix-CXXFLAGS_FOR_BUILD-passing.patch
 d707e47a10c866c0e6d085f9a2bfa1b21eff8e6a1b222840abbbe1b2f21cc4a50f4fa45f7dbbb1ad86dc2eb7c88160c715e69039d3de7f7784de7d5f2a87d6e4  0021-add-fortify-headers-paths.patch
-e746e250451eb76726a9de8f42de5eb1d23a228fd3d8961cd2a6c6f691a5418fcd32a817998e3a5aaf8d2d90cd03371aaf7912c9b834ed6c663c649f85f1d058  0022-Alpine-musl-package-provides-libssp_nonshared.a.-We-.patch
 c6d3a4b5d541b52f44641e59556c6312d785c4e12d47fac11a530ae0746170e891c0ed64ce6e9856e5581debfae0d5216753afaf87df1a2d40d50bdfa24ea7dc  0023-DP-Use-push-state-pop-state-for-gold-as-well-when-li.patch
 a29ad877662bbdbc6422456d32ed31aab3764edcc1eb3e1abe7be0f22d162da6d0f0d6565a25c7a43bf23151faba0492122ddcf832bdac57b3e47f89a6ab158d  0024-mips64-disable-multilib-support.patch
 18be870ec68865f4661ac73f9bf50765164711582b497beb852928e1d993bc257a0d2b015f435e93461c35edc1811505d31f3a46147bccb4764dcf9b8319c93a  0025-aarch64-disable-multilib-support.patch
@@ -729,20 +742,14 @@ b2b830626396936be105361e87c82490b5cd3d26ce7b8dbccf156d53eb5d0db82a28167656aaa5e4
 ee67238c66132f30fd00cc084d37012a927abe32ac48b4617779f22069d86384826c063b79626ab64f6adefdac0f00fcd5c18b95c8a2f11fb2cbee67babc9beb  0028-x86_64-disable-multilib-support.patch
 2ddf60a03db15c9c3e847001e300a54dfd9b5435da630e18379313e516fccbb8ea5e26571bb4f88baa6756cdb5c8ba7d059249c46a2f56e67bfca368750431eb  0029-riscv-disable-multilib-support.patch
 e7f9088809a4a4b87a6a5670227fb31766fb124ecdcea9936b00a7b98fdc06d7e7f27b6f67a575c434ba978623cb5f1183691dd63d6db98b180c4e08d62e5c5e  0030-always-build-libgcc_eh.a.patch
-653b2dbdf43ad336e75aa33ee3e520edd4c8cdb486bf8f5a30dbd8496b96451aa508e12e6a81dd16d36119f22fb9b0c46bcc39d731c89443c435fa4d1ca6fa08  0031-ada-libgnarl-compatibility-for-musl.patch
-9d46489087018366eea3b6537f6a86b0e183c7d49f8fecc2f50fbbcebf78727f5a1661ee6a50b5bddef0d54ebe47668ad61440784495194420b0896d5bd3f1aa  0032-ada-musl-support-fixes.patch
-63a2f9a81f94826dfac05073d6b7cb599c5b1d026c460edfd329f770c72208e369af1e427904528351aa78bce6e9445af9c59ca73ef5302f7362027757fa5d46  0033-gcc-go-Fix-handling-of-signal-34-on-musl.patch
 8d3a01d7e5e983eaabdf5c4a7e58ef33c55a794ed4cb5d438b41218ded367d3214b868a5c8d68f52ef74b0f83abb95d29b36ef8d0c7be68f7d1537a04e65d5c1  0034-There-are-more-than-one-st_-a-m-c-tim-fields-in-stru.patch
-56c7c1911fef05beaecfa1b41703d46d18c5e967430c79c719f8685f4c4971bb177f2de35b0a1631d5d3ed7292cb54c618e52fa859f483fafb5445511e5b226b  0035-gcc-go-signal-34-is-special-on-musl-libc.patch
 07921d5c30f3a23ba1c0540e106abe49e1675f183ffe2b326bdab80c59847b9ed5f39efd2836bc47d4ac1b3a3152f8de092c498ba91682e51c20548a65c0f105  0036-gcc-go-undef-SETCONTEXT_CLOBBERS_TLS-in-proc.c.patch
 ef8df8a047b4145f30884b052345e4e390fc1efb35a9c7da63899aa115c19b8cc04513a57b2340a6a58ed02dc6881b10f684da653734afe5acf69761e3d064e7  0037-gcc-go-link-to-libucontext.patch
-cf000459b493815bb0c9bccbbccc61ab8101f067b5b45d0f30cf49bf0ec6745f6ae360e4b5dccdb5c9bef1974835830efbb349c2ab38d1ee4dcc22385546873b  0038-Use-generic-errstr.go-implementation-on-musl.patch
 0baffb0d19c26a387d38525c87b3500c4486bf11aeb9d98cec559eb67db4b71d5bc580fa6aebb9a12295422edb53aea77101e521e91f5189c744749448b89b4a  0039-configure-Add-enable-autolink-libatomic-use-in-LINK_.patch
 d80074e1fa09cf6f7047a4dac7acadcfb53fcc93667af3348c61b22390999d618f2b16107c30a0fc52b145e27f14d6fddbe43ea36e6a9089741cb3b0b64fd856  0040-configure-fix-detection-of-atomic-builtins-in-libato.patch
 04434b605d71b6d4e9dedd03a810f250725d31fc70a5ad28d69499a04436caf6b0ec69f5c7223cb511063cc18c350ffdd95b722de97467f827789006ebcb2c73  0041-libgo-Recognize-off64_t-and-loff_t-definitions-of-mu.patch
 a3dc43ba56f12f4243c186572b32809d47a9d29c7a40edcf7f6da34c7add65a271c77635a5b9ae325d167e24a2e6bbe883c63eccec3af5d6f925cb304f8ba92b  0042-Fix-attempt-to-use-poisoned-calloc-error-in-libgccji.patch
 04ebbf2143a2d4b6c6d768c3aeea2899e6261adf414e16faed1247bc94eeaf61e54f88a2ba7ffdca90e9c0ee87c6fd7e3746481d184c539b8e0130a14b215fa7  0043-stddef.h-add-support-for-musl-typedef-macro-guards.patch
-e47183b5a565bdc64a497e14124d767a3e889e9f9d77a92567b0047b285c5ca49897b46ba681e339a8982611b70583ae87a3472dae33f07becaeceb21b3cfe74  0044-gcc-go-Use-int64-type-as-offset-argument-for-mmap.patch
 a5adab61de2d4b2c3ccb1a55c70384a8496c447f7727a6680fa29263c4f57599a3dfb85e1e322859797f86605491af0f68f9dd1141ab4bbbe8b5183f67f3b32e  0045-libgo-include-asm-ptrace.h-for-pt_regs-definition-on.patch
 9c0e461eeba709110ca88d60236190c9b71d57d4e13786e2f15521a902e37dacc08d466966764abce9bc84e27d06e2e8523a1a80325f8a16d6ec16d2bf89fa05  0046-Disable-fsplit-stack-support-on-non-glibc-targets.patch
 f62778ab53125a9ba5a8088e064c2182c014bc264a46fd3d28d1ee0142dd02a7ed2c684dc63e9768a56a6f8f65621bea20026cd6b65053c2ff9ee51568ee260d  0047-x86-Properly-disable-fsplit-stack-support-on-non-gli.patch
@@ -750,5 +757,4 @@ c44c6e5b28b622897af60e7e2dbf0d0284379eb57b39b480936e6d8b3743a24287c2a9ed69a530ef
 160ef16fde90546474e1548f1487c18d9b8edbae1d42a13ad06041b03214d06ff2c3586acd4d0bae27d48e48bb651861c6b9a140ade4ac59f00a268e85275da4  0049-properly-disable-fsplit-stack-on-non-glibc-targets-P.patch
 f4d9ebf6d5c80d2f303404b9bf315bf81435c0d369b03b92f8e8510d82db72c2a30d84603307ddc0697df3845862ba93045e4a3724f8e491e7c01bd4396d8864  0050-x86-Fix-fsplit-stack-feature-detection-via-TARGET_CA.patch
 8ac54b3a46f7270d975fa3e1198ac37a2311a4b9940938958ffc148e4e9c82c3e81cf3e3c3abd43cef29137897cd6768220b432f828672e036308f7994422d2e  0051-go-gospec-forcibly-disable-fsplit-stack-support.patch
-fa59b0fb081d97f8f63506b8793699588a95c602b5d468140eb1e80456597e52e1cc45dc0b234ac8e60e2b0cd606d94d111c8b0ae64c0a2be1bc1b8a184ceb93  libgo-musl-1.2.3.patch
 "

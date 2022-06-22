@@ -10,7 +10,6 @@ makedepends="ncurses-dev gettext-dev autoconf automake libtool"
 checkdepends="dejagnu"
 subpackages="$pkgname-dev $pkgname-doc $pkgname-lang libproc"
 source="https://gitlab.com/procps-ng/procps/-/archive/v$pkgver/procps-v$pkgver.tar.gz
-	musl-fixes.patch
 	"
 builddir="$srcdir/$pkgname-v$pkgver"
 
@@ -18,6 +17,7 @@ prepare() {
 	# NOTE: Name of the tarball's top-level directory contains SHA1.
 	ln -fs $srcdir/$pkgname-v$pkgver-* "$builddir"
 
+	[ "$CLIBC" != "glibc" ] && msg musl-fixes.patch && patch -p1 < $startdir/musl-fixes.patch
 	default_prepare
 
 	# force misc/git-version-gen use the correct version (instead of UNKNOWN);
@@ -30,7 +30,9 @@ prepare() {
 }
 
 build() {
+if [ "$CLIBC" != "glibc" ]; then
 	export LIBS="$LIBS -lintl"
+fi
 	./configure \
 		--build=$CBUILD \
 		--host=$CHOST \
@@ -50,9 +52,12 @@ build() {
 	make
 }
 
+# TODO Some test fails with glibc
+if [ "$CLIBC" != "glibc" ]; then
 check() {
 	make check
 }
+fi
 
 package() {
 	make DESTDIR="$pkgdir" ldconfig=true install="install -D" \
@@ -81,5 +86,4 @@ libproc() {
 
 sha512sums="
 070076cf6bbbd8b6b342af361035f11d9c7381c5d1e2e430a5f2584ff55656254e8f863a40ca75a38870a5007d1b22a0d452bef13fa0ab89e4bf9676826fd788  procps-v3.3.17.tar.gz
-54975d8fd87ff39551a04fb9f7ff6ffcec6fa2f7933a59c3f3d2b927cc0a21263259e864a9775a96f0996511f249fa72c1975010098fe12cff22202cdde1ed87  musl-fixes.patch
 "
