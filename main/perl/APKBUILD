@@ -99,7 +99,8 @@ fi
 		-Dinstallman3dir=/usr/share/man/man3 \
 		-Dman1ext='1' \
 		-Dman3ext='3pm' \
-		-Dcf_by='Alpine' $configureOptions
+		-Dcf_by='Alpine' \
+		-Ud_csh $configureOptions
 
 	make libperl.so && make
 }
